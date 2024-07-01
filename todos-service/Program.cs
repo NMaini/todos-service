@@ -1,3 +1,4 @@
+
 namespace todos_service;
 
 public class Program
@@ -8,10 +9,14 @@ public class Program
 
         // Add services to the container.
         builder.Services.AddAuthorization();
+        builder.Services.AddControllers();
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+
+        builder.Services.AddScoped<ITodosRepository, TodosRepository>();
+        builder.Services.AddScoped<IUsersRepository, UserRepository>();
 
         var app = builder.Build();
 
@@ -24,16 +29,11 @@ public class Program
 
         app.UseHttpsRedirection();
 
+        app.UseRouting();
         app.UseAuthorization();
-
-        app.MapPost("/register", (string username, string password) => "user registered")
-            .WithName("GetWeatherForecast")
-            .WithOpenApi();
-        
-        app.MapPost("/login", (HttpContext httpContext) => "Logged In")
-            .WithName("LoginUser")
-            .WithOpenApi();
+        app.UseEndpoints(configure => configure.MapControllers());
 
         app.Run();
     }
 }
+
