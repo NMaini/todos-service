@@ -11,6 +11,7 @@ namespace todos_service;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class TodosController: ControllerBase
 {
     private readonly ITodosRepository _todosRepository;
@@ -20,16 +21,18 @@ public class TodosController: ControllerBase
         _todosRepository = todosRepository;
     }
     
-    [HttpGet("/{userId}")]
-    public async Task<IResult> GetTodos([FromRoute]string userId)
+    [HttpGet]
+    public async Task<IResult> GetTodos()
     {
+        var userId = User.Claims.FirstOrDefault(c => c.Type == "name").Value;
         var todos = await _todosRepository.GetTodosForUser(userId);
         return Results.Ok(todos);
     }
 
-    [HttpPost("/{userId}")]
-    public async Task<IResult> AddTodo([FromRoute] string userId, [FromBody] string name)
+    [HttpPost]
+    public async Task<IResult> AddTodo([FromBody] string name)
     {
+        var userId = User.Claims.FirstOrDefault((c => c.Type == "name")).Value;
         try
         {
             var todo = new Todo()

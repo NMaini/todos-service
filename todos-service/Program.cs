@@ -1,3 +1,7 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using todos_service.Core;
 
 namespace todos_service;
 
@@ -8,6 +12,25 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         // Add services to the container.
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(options =>
+        {
+            options.RequireHttpsMetadata = false;
+            options.SaveToken = true;
+            options.TokenValidationParameters = new TokenValidationParameters()
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey =
+                    new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["jwt:securityKey"])),
+                ValidateIssuer = false,
+                ValidateAudience = false
+            };
+        });
+
+        builder.Services.AddSingleton<IAuthService, AuthService>();
         builder.Services.AddAuthorization();
         builder.Services.AddControllers();
 
@@ -30,6 +53,7 @@ public class Program
         app.UseHttpsRedirection();
 
         app.UseRouting();
+        app.UseAuthentication();
         app.UseAuthorization();
         app.UseEndpoints(configure => configure.MapControllers());
 

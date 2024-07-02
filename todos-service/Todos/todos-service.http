@@ -1,6 +1,7 @@
 @todos_service_HostAddress = http://localhost:5249
 
-GET {{todos_service_HostAddress}}/weatherforecast/
+GET {{todos_service_HostAddress}}/api/Todos/
 Accept: application/json
+Authorization: Bearer
 
 ###
